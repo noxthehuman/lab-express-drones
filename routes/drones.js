@@ -15,35 +15,28 @@ router.get('/drones', async (req, res, next) => {
   }
 });
 
-function DroneFromRequestBody(request) {
-  // grab the data from the body
-  const { name, propellers, maxSpeed } = request.body
-  // build our data to add into our database
-  const drone = {
-    name,
-    propellers,
-    maxSpeed
-  }
-  return drone
-}
-
 router.get('/drones/create', (req, res, next) => {
   // Iteration #3: Add a new drone
-  const droneToCreate = DroneFromRequestBody(req)
-  const createdDrone = await Drone.create(droneToCreate)
-
-  // gather the updated list
-  const drones = await Drone.find()
-
-  // show the result
-  res.render('route/list', {
-    drones,
-  })
+  res.render('drones/create-form')
 });
 
-router.post('/drones/create', (req, res, next) => {
+router.post('/drones/create', async (req, res, next) => {
   // Iteration #3: Add a new drone
-  // ... your code here
+  try {
+    const {name, propellers, maxSpeed} = req.body
+    const droneToCreate = {name, propellers, maxSpeed}
+    const createdDrone = await Drone.create(droneToCreate)
+
+    res.set({ 'Content-Type': 'application/json' })
+    res.send(JSON.stringify(createdDrone))
+
+    const drones = await Drone.find()
+  // show the result
+    res.render('drones/list', {drones})
+  }
+  catch(error) {
+    res.render('drones/create-form')
+  }
 });
 
 router.get('/drones/:id/edit', (req, res, next) => {
